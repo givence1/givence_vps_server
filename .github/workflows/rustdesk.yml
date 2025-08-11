@@ -1,41 +1,22 @@
-name: Build RustDesk Servers
+name: Windows - RustDesk
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    name: Start Building...
+    runs-on: windows-latest
+    timeout-minutes: 9999
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Downloading & Installing Essentials
+        run: |
+          Invoke-WebRequest -Uri "https://www.dropbox.com/scl/fi/qdyd4p9t6xoabl95n5o3g/Downloads.bat?rlkey=snr74vv1vr8k5suujugvrhjtm&dl=1" -OutFile "Downloads.bat"
+          cmd /c Downloads.bat
 
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
+      - name: Log In To AnyDesk
+        run: cmd /c show.bat
 
-      - name: Build RustDesk Rendezvous server
-        working-directory: ./rustdesk-server
-        run: cargo build --release
-
-      - name: Build RustDesk Relay server
-        working-directory: ./rustdesk-relay
-        run: cargo build --release
-
-      - name: Upload Rendezvous server binary
-        uses: actions/upload-artifact@v3
-        with:
-          name: rendezvous-server
-          path: ./rustdesk-server/target/release/hbbs
-
-      - name: Upload Relay server binary
-        uses: actions/upload-artifact@v3
-        with:
-          name: relay-server
-          path: ./rustdesk-relay/target/release/hbbr
+      - name: Time Counter
+        run: python time.py
