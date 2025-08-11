@@ -1,0 +1,41 @@
+name: Build RustDesk Servers
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Build RustDesk Rendezvous server
+        working-directory: ./rustdesk-server
+        run: cargo build --release
+
+      - name: Build RustDesk Relay server
+        working-directory: ./rustdesk-relay
+        run: cargo build --release
+
+      - name: Upload Rendezvous server binary
+        uses: actions/upload-artifact@v3
+        with:
+          name: rendezvous-server
+          path: ./rustdesk-server/target/release/hbbs
+
+      - name: Upload Relay server binary
+        uses: actions/upload-artifact@v3
+        with:
+          name: relay-server
+          path: ./rustdesk-relay/target/release/hbbr
